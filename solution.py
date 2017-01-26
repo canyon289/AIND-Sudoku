@@ -11,9 +11,10 @@ boxes = cross(rows, cols)
 row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
+diagonal_units = [[r+c for r,c in zip(rows,cols)],[r+c for r,c in zip(rows[::-1],cols)]]
 
 # Unit list is a list of lists of all units which are groups of boxes
-unitlist = row_units + column_units + square_units
+unitlist = row_units + column_units + square_units + diagonal_units
 
 # Unit is a dictionary of all boxes in a unit keyed by box
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
