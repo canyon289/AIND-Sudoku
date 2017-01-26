@@ -21,6 +21,8 @@ units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 # Peers combine all units for a box, removing the box itself
 peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
 
+assignments = []
+
 def assign_value(values, box, value):
     """
     Please use this function to update your values dictionary!
@@ -53,7 +55,15 @@ def grid_values(grid):
             Keys: The boxes, e.g., 'A1'
             Values: The value in each box, e.g., '8'. If the box has no value, then the value will be '123456789'.
     """
-    return {key:value for key,value in zip(boxes,grid)}
+    values = []
+    all_digits = '123456789'
+    for c in grid:
+        if c == '.':
+            values.append(all_digits)
+        elif c in all_digits:
+            values.append(c)
+    assert len(values) == 81
+    return dict(zip(boxes, values))
 
 def display(values):
     """
@@ -86,11 +96,11 @@ def only_choice(values):
         for digit in '123456789':
             dplaces = [box for box in unit if digit in values[box]]
             if len(dplaces) == 1:
-                values[dplaces[0]] = digit
+                values = assign_value(values, dplaces[0], digit)
+                #values[dplaces[0]] = digit
     return values
 
 def reduce_puzzle(values):
-    ipdb.set_trace()
     solved_values = [box for box in values.keys() if len(values[box]) == 1]
     stalled = False
     while not stalled:
@@ -109,8 +119,6 @@ def reduce_puzzle(values):
             return False
     return values
 
-def solve(grid):
-   return search(grid_values(grid))
 
 def search(values):
     "Using depth-first search and propagation, create a search tree and solve the sudoku."
@@ -130,9 +138,20 @@ def search(values):
         if attempt:
             return attempt
 
+def solve(grid):
+    """
+    Find the solution to a Sudoku grid.
+    Args:
+        grid(string): a string representing a sudoku grid.
+            Example: '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
+    Returns:
+        The dictionary representation of the final sudoku grid. False if no solution exists.
+    """
+    return search(grid_values(grid))
+
 if __name__ == '__main__':
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
-    display(solve(grid_values(diag_sudoku_grid)))
+    display(solve(diag_sudoku_grid))
 
     try:
         from visualize import visualize_assignments
