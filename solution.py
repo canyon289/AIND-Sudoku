@@ -1,4 +1,5 @@
 import ipdb
+from collections import Counter
 
 rows = 'ABCDEFGHI'
 cols = '123456789'
@@ -42,9 +43,24 @@ def naked_twins(values):
     Returns:
         the values dictionary with the naked twins eliminated from peers.
     """
-
     # Find all instances of naked twins
-    # Eliminate the naked twins as possibilities for their peers
+    
+    for unit in unitlist:
+        current_values = []
+        for box in unit:
+            value = values[box]
+            if len(value) == 2:
+               current_values.append(value)
+        counts = Counter(current_values)
+
+        # Eliminate the naked twins as possibilities for their peers
+        for value, count in counts.items():
+            if count == 2:
+                for box in unit:
+                    if values[box] != value:
+                        for digit in value:
+                            values[box] = values[box].replace(digit,'')
+    return values
 
 def grid_values(grid):
     """
@@ -93,12 +109,12 @@ def eliminate(values):
     return values
 
 def only_choice(values):
+    """Determines if there is only one box where number can be placed"""
     for unit in unitlist:
         for digit in '123456789':
             dplaces = [box for box in unit if digit in values[box]]
             if len(dplaces) == 1:
                 values = assign_value(values, dplaces[0], digit)
-                #values[dplaces[0]] = digit
     return values
 
 def reduce_puzzle(values):
@@ -111,6 +127,8 @@ def reduce_puzzle(values):
         values = eliminate(values)
         # Use the Only Choice Strategy
         values = only_choice(values)
+        # Use the Naked Twins strategy
+        values = naked_twins(values)
         # Check how many boxes have a determined value, to compare
         solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
         # If no new values were added, stop the loop.
