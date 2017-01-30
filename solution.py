@@ -1,4 +1,3 @@
-import ipdb
 from collections import Counter
 
 rows = 'ABCDEFGHI'
